@@ -10,7 +10,7 @@
 
 **The #1 Event Planning Platform - Connect with 500+ Verified Vendors**
 
-[Live Demo](#) • [Features](#-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation) • [Contributing](#-contributing)
+[Live Demo](https://planoraevents.com) • [Features](#-features) • [Tech Stack](#-tech-stack) • [Installation](#-installation) • [Contributing](#-contributing)
 
 </div>
 
