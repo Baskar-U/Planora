@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,95 +6,99 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ShoppingCart, Menu, User, LogOut } from "lucide-react";
-import { auth, signOutUser, onAuthStateChange } from "@/lib/firebase";
 import { useQuery } from "@tanstack/react-query";
-import AuthModal from "./AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const [location] = useLocation();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChange((user) => {
-      setUser(user);
-    });
-    return unsubscribe;
-  }, []);
+  const { user, signOut } = useAuth();
 
   const { data: cartItems = [] } = useQuery({
     queryKey: ["/api/cart", user?.uid],
     enabled: !!user,
   });
 
-  const cartCount = cartItems.length;
+  const cartCount = Array.isArray(cartItems) ? cartItems.length : 0;
 
   const handleSignOut = async () => {
     try {
-      await signOutUser();
+      await signOut();
     } catch (error) {
       console.error("Failed to sign out:", error);
     }
   };
 
+
+
+  // Simplified navigation items for Google AdSense approval
   const navigationItems = [
     { path: "/", label: "Home" },
-    { path: "/orders", label: "Orders" },
-    { path: "/post-order", label: "Post Order" },
-    { path: "/ai-assistant", label: "AI Assistant" },
-    { path: "/messages", label: "Messages" },
+    { path: "/vendors", label: "Browse Vendors" },
+    { path: "/about", label: "About Us" },
+    { path: "/contact", label: "Contact Us" },
   ];
 
   return (
     <>
-      <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+      <header className="bg-white shadow-md border-b border-gray-100 sticky top-0 z-50 transition-shadow duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link href="/">
-              <h1 className="text-2xl font-bold text-primary-600">Planora</h1>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              {navigationItems.map((item) => (
-                <Link key={item.path} href={item.path}>
-                  <span
-                    className={`transition-colors ${
-                      location === item.path
-                        ? "text-gray-900 font-medium border-b-2 border-primary-500 pb-1"
-                        : "text-gray-600 hover:text-gray-900"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-            </nav>
-
-            {/* User Actions */}
-            <div className="flex items-center space-x-4">
-              {/* Cart */}
-              <Link href="/cart">
-                <Button variant="ghost" size="sm" className="relative">
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartCount > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
-                      {cartCount}
-                    </Badge>
-                  )}
-                </Button>
+            <div className="flex items-center">
+              <Link href="/">
+                <div className="flex items-end">
+                  <img 
+                    src="/logo.jpg" 
+                    alt="Planora Logo" 
+                    className="h-8 sm:h-10 w-auto object-contain"
+                  />
+                  <h1 className="text-xl sm:text-2xl font-bold text-primary-600 ml-2 mb-1">Planora</h1>
+                </div>
               </Link>
+            </div>
+
+            {/* Right side: Navigation + User Actions */}
+            <div className="flex items-center space-x-6">
+              {/* Navigation Items */}
+              <div className="hidden md:flex items-center space-x-6">
+                {navigationItems.map((item) => (
+                  <Link key={item.path} href={item.path}>
+                    <span className={`text-gray-700 hover:text-primary-600 transition-colors ${
+                      location === item.path ? 'text-primary-600 font-medium' : ''
+                    }`}>
+                      {item.label}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+
+
+
+              {/* User Actions */}
+              <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Cart - Only show for logged-in users */}
+              {user && (
+                <Link href="/cart">
+                  <Button variant="ghost" size="sm" className="relative tap-target">
+                    <ShoppingCart className="h-5 w-5" />
+                    {cartCount > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                        {cartCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </Link>
+              )}
 
               {/* User Profile or Auth */}
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full tap-target">
+                      <Avatar className="h-10 w-10">
                         <AvatarImage src={user.photoURL} alt={user.displayName} />
                         <AvatarFallback>
-                          <User className="h-4 w-4" />
+                          <User className="h-5 w-5" />
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -112,9 +116,7 @@ export default function Navbar() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              ) : (
-                <Button onClick={() => setAuthModalOpen(true)}>Sign In</Button>
-              )}
+              ) : null}
 
               {/* Mobile Menu */}
               <Sheet>
@@ -135,12 +137,12 @@ export default function Navbar() {
                   </nav>
                 </SheetContent>
               </Sheet>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </>
   );
 }

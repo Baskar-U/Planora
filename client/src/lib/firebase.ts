@@ -1,14 +1,16 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
+import { getAuth, signInWithRedirect, signInWithPopup, getRedirectResult, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-key",
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-project"}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-project",
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-project"}.firebasestorage.app`,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "demo-app-id",
+  apiKey: "AIzaSyBBHdkoD3yYCe9gLCs8zV9_QpL7f0P34ag",
+  authDomain: "planora-ce3a5.firebaseapp.com",
+  projectId: "planora-ce3a5",
+  storageBucket: "planora-ce3a5.appspot.com",
+  messagingSenderId: "681139972771",
+  appId: "1:681139972771:web:5e17d10a3549c1abe52d16",
+  measurementId: "G-HTHPBGY2GQ"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -19,6 +21,10 @@ export const storage = getStorage(app);
 const provider = new GoogleAuthProvider();
 
 export const signInWithGoogle = () => {
+  return signInWithPopup(auth, provider);
+};
+
+export const signInWithGoogleRedirect = () => {
   return signInWithRedirect(auth, provider);
 };
 
